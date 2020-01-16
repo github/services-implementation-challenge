@@ -1,0 +1,11 @@
+<settings>
+  <mirrors>
+    <mirror>
+      <!-- Use mirror since central not available from within central corp network-->
+      <id>ExampleCorpCentralMirror</id>
+      <name>ExampleCorp Central</name>
+      <url>http://internal.examplecorp.com/maven2</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+  </mirrors>
+</settings>

@@ -1,0 +1,74 @@
+---
+# Ansible playbook for deploying simple frontend and backend services.
+
+- hosts: backend_hosts
+  tasks:
+    - name: stop all running backend processes
+      command: pkill -f "jetty-runner.jar.*backend.war"
+      ignore_errors: yes # returns 1 if no such processes were found
+
+    - name: clean artifact directory
+      file:
+        path: /tmp/deploy/backend
+        state: absent
+
+    - name: create artifact directory
+      file:
+        path: /tmp/deploy/backend
+        state: directory
+      register: deploy_dir
+
+    - name: upload backend artifacts to artifact directory # TODO
+
+    - name: download jetty runner jar
+      get_url:
+        url: https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-runner/9.3.28.v20191105/jetty-runner-9.3.28.v20191105.jar
+        dest: "{{ deploy_dir.path }}/jetty-runner.jar"
+        checksum: sha1:afab40c588dcb4977d2806e9178a3f547a300d65
+
+    - name: install Java
+      apt:
+        name: openjdk-8-jre
+      become: yes
+      become_method: sudo
+
+    - name: launch backend
+      async: 1000
+      poll: 0
+      shell: "java -jar {{ deploy_dir.path }}/jetty-runner.jar --port 8080 {{ deploy_dir.path }}/backend.war"
+
+- hosts: frontend_hosts
+  tasks:
+    - name: stop all running frontend processes
+      command: pkill -f "jetty-runner.jar.*frontend.war"
+      ignore_errors: yes # returns 1 if no such processes were found
+
+    - name: clean artifact directory
+      file:
+        path: /tmp/deploy/frontend
+        state: absent
+
+    - name: create artifact directory
+      file:
+        path: /tmp/deploy/frontend
+        state: directory
+      register: deploy_dir
+
+    - name: upload frontend artifacts to artifact directory # TODO
+
+    - name: download jetty runner jar
+      get_url:
+        url: https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-runner/9.3.28.v20191105/jetty-runner-9.3.28.v20191105.jar
+        dest: "{{ deploy_dir.path }}/jetty-runner.jar"
+        checksum: sha1:afab40c588dcb4977d2806e9178a3f547a300d65
+
+    - name: install Java
+      apt:
+        name: openjdk-8-jre
+      become: yes
+      become_method: sudo
+
+    - name: launch frontend
+      async: 1000
+      poll: 0
+      shell: "java -jar {{ deploy_dir.path }}/jetty-runner.jar --port 8000 {{ deploy_dir.path }}/frontend.war"

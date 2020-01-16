@@ -1,0 +1,10 @@
+all:
+  children:
+    backend_hosts:
+      hosts:
+        localhost:
+          ansible_connection: local
+    frontend_hosts:
+      hosts:
+        localhost:
+          ansible_connection: local
